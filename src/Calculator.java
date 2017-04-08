@@ -1,6 +1,7 @@
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -22,7 +23,7 @@ public class Calculator {
 			System.out.println(arquivoComDigestCalculado);
 			System.out.println("\n");
 		}
-		
+
 		System.out.println("\n===Fim dos Arquivos de entrada com digests calculados===\n");
 	}
 
@@ -30,19 +31,25 @@ public class Calculator {
 		try {
 
 			String tipoDigest = this.dadosDeEntrada.getTipoDigest();
-			MessageDigest messageDigest = MessageDigest.getInstance(tipoDigest);
 
 			for (String arquivo : this.dadosDeEntrada.getArquivos()) {
-				BufferedInputStream byteReader = new BufferedInputStream(new FileInputStream(arquivo));
 
-				int data = byteReader.read();
+				MessageDigest messageDigest = MessageDigest.getInstance(tipoDigest);
+				InputStream file = new FileInputStream(arquivo);
+				BufferedInputStream byteReader = new BufferedInputStream(file);
+
+				byte[] dataAsByte = new byte[1024];
+				int data = byteReader.read(dataAsByte);
 				while (data != -1) {
-					messageDigest.update((byte) data);
-					data = byteReader.read();
+					messageDigest.update(dataAsByte, 0, data);
+					data = byteReader.read(dataAsByte);
 				}
 
-				ArquivoComDigestCalculado arquivoComDigestCalculado = new ArquivoComDigestCalculado(
-						getNomeArquivo(arquivo), tipoDigest, toHex(messageDigest.digest()));
+				String nomeDoArquivo = getNomeArquivo(arquivo);
+				String digestEmHex = toHex(messageDigest.digest());
+
+				ArquivoComDigestCalculado arquivoComDigestCalculado = new ArquivoComDigestCalculado(nomeDoArquivo,
+						tipoDigest, digestEmHex);
 				this.arquivosComDigestsCalculados.add(arquivoComDigestCalculado);
 				byteReader.close();
 			}
