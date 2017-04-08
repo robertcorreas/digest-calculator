@@ -26,7 +26,9 @@ public class DadosDeEntrada {
 
 	public String toString() {
 
-		String toStringFormatada = "Tipo Digest: "+this.tipoDigest + "\n";
+		String toStringFormatada = "\n===Dados de entrada===\n";
+		
+		toStringFormatada += "Tipo Digest: "+this.tipoDigest + "\n";
 
 		toStringFormatada+="\nArquivos de Entrada\n";
 		for (String arquivo : arquivos) {
@@ -35,6 +37,7 @@ public class DadosDeEntrada {
 
 		toStringFormatada += this.listaDigest.toString();
 
+		toStringFormatada+="\n===Fim Dados de entrada===\n";
 		return toStringFormatada;
 	}
 }
