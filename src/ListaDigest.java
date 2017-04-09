@@ -16,10 +16,14 @@ public class ListaDigest {
 	public ListaDigest(String caminhoArquivo) {
 		this.caminhoArquivo = caminhoArquivo;
 		this.itens = new ArrayList<ListaDigestItem>();
-		
+
 		CarregarArquivo();
 	}
-	
+
+	public String getCaminhoArquivo() {
+		return caminhoArquivo;
+	}
+
 	private void criarItem(String[] linha) {
 
 		if (linha.length == 3) {
@@ -36,8 +40,8 @@ public class ListaDigest {
 			this.Adicionar(nomeArquivo, tipoDigest1, digest1, tipoDigest2, digest2);
 		}
 	}
-	
-	private void CarregarArquivo(){
+
+	private void CarregarArquivo() {
 		try {
 			FileReader arquivo = new FileReader(this.caminhoArquivo);
 			BufferedReader reader = new BufferedReader(arquivo);
@@ -81,6 +85,67 @@ public class ListaDigest {
 		}
 
 		return toStringFormatada;
+	}
+
+	public Boolean contémDigest(ArquivoComDigestCalculado digestCalculado) {
+
+		for (ListaDigestItem item : itens) {
+
+			if (item.getTipoDigest1().equals(digestCalculado.getTipoDigest())
+					&& item.getDigest1().equals(digestCalculado.getDigest())
+					&& item.getNomeArquivo().equals(digestCalculado.getNomeArquivo())) {
+				return true;
+			}
+
+			if (item.TemSegundoDigest()) {
+				if (item.getTipoDigest2().equals(digestCalculado.getTipoDigest())
+						&& item.getDigest2().equals(digestCalculado.getDigest())
+						&& item.getNomeArquivo().equals(digestCalculado.getNomeArquivo())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public Boolean estáPresenteNaLista(String nomeArquivo, String tipoDigest) {
+
+		for (ListaDigestItem item : itens) {
+			if (item.getNomeArquivo().equals(nomeArquivo)){
+			
+				if(item.getTipoDigest1().equals(tipoDigest))
+					return true;
+				
+				if(item.TemSegundoDigest()){
+					if(item.getTipoDigest2().equals(tipoDigest))
+						return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	public boolean contémColisão(ArquivoComDigestCalculado digestCalculado) {
+
+		for (ListaDigestItem item : itens) {
+
+			if (item.getNomeArquivo().equals(digestCalculado.getNomeArquivo()))
+				continue;
+
+			if (item.getTipoDigest1().equals(digestCalculado.getTipoDigest())
+					&& item.getDigest1().equals(digestCalculado.getDigest())) {
+				return true;
+			}
+
+			if (item.TemSegundoDigest()) {
+				if (item.getTipoDigest2().equals(digestCalculado.getTipoDigest())
+						&& item.getDigest2().equals(digestCalculado.getDigest())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 }

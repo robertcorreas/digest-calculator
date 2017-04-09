@@ -1,7 +1,12 @@
 import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -14,6 +19,10 @@ public class Calculator {
 	private DadosDeEntrada dadosDeEntrada;
 	private List<ArquivoComDigestCalculado> arquivosComDigestsCalculados = new ArrayList<ArquivoComDigestCalculado>();
 
+	public List<ArquivoComDigestCalculado> getArquivosComDigestsCalculados() {
+		return arquivosComDigestsCalculados;
+	}
+
 	public Calculator(DadosDeEntrada dadosDeEntrada) {
 		this.dadosDeEntrada = dadosDeEntrada;
 		CalcularDigestDosArquivosDeEntrada();
@@ -25,6 +34,108 @@ public class Calculator {
 		}
 
 		System.out.println("\n===Fim dos Arquivos de entrada com digests calculados===\n");
+	}
+
+	public void Verificar() {
+		ListaDigest listaDigests = this.dadosDeEntrada.getListaDigest();
+
+		for (ArquivoComDigestCalculado digestCalculado : arquivosComDigestsCalculados) {
+
+			if (this.contémColisãoComDemaisDigestDeEntrada(digestCalculado)
+					|| listaDigests.contémColisão(digestCalculado)) {
+				digestCalculado.setStatus("COLISION");
+				continue;
+			}
+
+			if (!listaDigests.estáPresenteNaLista(digestCalculado.getNomeArquivo(), digestCalculado.getTipoDigest())) {
+				digestCalculado.setStatus("NOT FOUND");
+				continue;
+			}
+
+			if (!listaDigests.contémDigest(digestCalculado)) {
+				digestCalculado.setStatus("NOT OK");
+				continue;
+			}
+			digestCalculado.setStatus("OK");
+		}
+	}
+
+	public void AdicionarArquivoNãoEncontradoAListaDigests(ListaDigest listaDigest) {
+
+		List<ArquivoComDigestCalculado> notFounds = new ArrayList<ArquivoComDigestCalculado>();
+
+		for (ArquivoComDigestCalculado item : arquivosComDigestsCalculados) {
+			if (item.getStatus().equals("NOT FOUND")) {
+				notFounds.add(item);
+			}
+		}
+
+		try {
+			FileWriter arq;
+			arq = new FileWriter(listaDigest.getCaminhoArquivo());
+			PrintWriter gravarArq = new PrintWriter(arq);
+			for (ListaDigestItem item : listaDigest.getItens()) {
+
+				String linha;
+
+				if (item.TemSegundoDigest()) {
+					linha = String.format("%s %s %s %s %s", item.getNomeArquivo(), item.getTipoDigest1(),
+							item.getDigest1(), item.getTipoDigest2(), item.getDigest2());
+					gravarArq.println(linha);
+				}else {
+					
+					// CompletaUmExistente
+					Boolean completou = false;
+					for (ArquivoComDigestCalculado notFound : notFounds) {
+						if (item.getNomeArquivo().equals(notFound.getNomeArquivo())) {
+							linha = String.format("%s %s %s %s %s", item.getNomeArquivo(), item.getTipoDigest1(),
+									item.getDigest1(), notFound.getTipoDigest(), notFound.getDigest());
+							gravarArq.println(linha);
+							completou = true;
+						}
+					}
+					
+					if(!completou){
+						linha = String.format("%s %s %s", item.getNomeArquivo(), item.getTipoDigest1(), item.getDigest1());
+						gravarArq.println(linha);	
+					}
+				} 
+			}
+			
+			for (ArquivoComDigestCalculado notFound : notFounds) {
+				
+				Boolean contém = false;
+				
+				for (ListaDigestItem item : listaDigest.getItens()) {
+					if(item.getNomeArquivo().equals(notFound.getNomeArquivo()))
+						contém = true;
+				}
+				
+				if(!contém){
+					String linha = String.format("%s %s %s", notFound.getNomeArquivo(), notFound.getTipoDigest(), notFound.getDigest());
+					gravarArq.println(linha);
+				}
+			}
+			
+			gravarArq.close();
+			arq.close();
+		} catch (Exception e) {
+
+		}
+	}
+
+	private Boolean contémColisãoComDemaisDigestDeEntrada(ArquivoComDigestCalculado digestCalculado) {
+
+		for (ArquivoComDigestCalculado item : arquivosComDigestsCalculados) {
+			if (item == digestCalculado)
+				continue;
+
+			if (item.getDigest().equals(digestCalculado.getDigest())
+					&& item.getTipoDigest().equals(digestCalculado.getTipoDigest())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void CalcularDigestDosArquivosDeEntrada() {

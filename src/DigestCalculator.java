@@ -1,11 +1,3 @@
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 public class DigestCalculator {
 	
 	public static void main(String[] args) {
@@ -18,6 +10,13 @@ public class DigestCalculator {
 			System.out.println(dadosDeEntrada);
 			
 			Calculator calculator = new Calculator(dadosDeEntrada);
+			calculator.Verificar();
+			
+			for (ArquivoComDigestCalculado item : calculator.getArquivosComDigestsCalculados()) {
+				System.out.println(String.format("%s %s %s (%s)", item.getNomeArquivo(), item.getTipoDigest(), item.getDigest(), item.getStatus()));
+			}
+			
+			calculator.AdicionarArquivoNãoEncontradoAListaDigests(dadosDeEntrada.getListaDigest());
 			
 			System.out.println("Acabou");
 		}
