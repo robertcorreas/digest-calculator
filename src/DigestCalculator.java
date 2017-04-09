@@ -2,27 +2,27 @@ public class DigestCalculator {
 	
 	public static void main(String[] args) {
 
-		if(args.length >= 1){
+		if(args.length >= 3){
 			
-			PreparadorDadosEntrada preparador = new PreparadorDadosEntrada();
-			DadosDeEntrada dadosDeEntrada = preparador.GetDadosDeEntrada(args);
-					
-			System.out.println(dadosDeEntrada);
-			
-			Calculator calculator = new Calculator(dadosDeEntrada);
-			calculator.Verificar();
-			
-			for (ArquivoComDigestCalculado item : calculator.getArquivosComDigestsCalculados()) {
-				System.out.println(String.format("%s %s %s (%s)", item.getNomeArquivo(), item.getTipoDigest(), item.getDigest(), item.getStatus()));
+			try {
+				PreparadorDadosEntrada preparador = new PreparadorDadosEntrada();
+				DadosDeEntrada dadosDeEntrada = preparador.GetDadosDeEntrada(args);
+						
+				Calculator calculator = new Calculator(dadosDeEntrada);
+				calculator.Verificar();
+				
+				for (ArquivoComDigestCalculado item : calculator.getArquivosComDigestsCalculados()) {
+					System.out.println(String.format("%s %s %s (%s)", item.getNomeArquivo(), item.getTipoDigest(), item.getDigest(), item.getStatus()));
+				}
+				
+				calculator.AdicionarArquivoNãoEncontradoAListaDigests(dadosDeEntrada.getListaDigest());
+			} catch (Exception e) {
+				System.out.println("Ocorreu um erro. Verifique os dados de entrada");
+				System.out.println("DigestCalculator tipoDigest(MD5 ou SHA1) caminho_arquivo1 caminho_arquivo2 caminho_arquivo_n listaDigest");
 			}
-			
-			calculator.AdicionarArquivoNãoEncontradoAListaDigests(dadosDeEntrada.getListaDigest());
-			
-			System.out.println("Acabou");
 		}
-
+		else{
+			System.out.println("DigestCalculator tipoDigest(MD5 ou SHA1) caminho_arquivo1 caminho_arquivo2 caminho_arquivo_n listaDigest");
+		}
 	}
-	
-
-
 }

@@ -1,12 +1,9 @@
 import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -26,14 +23,6 @@ public class Calculator {
 	public Calculator(DadosDeEntrada dadosDeEntrada) {
 		this.dadosDeEntrada = dadosDeEntrada;
 		CalcularDigestDosArquivosDeEntrada();
-
-		System.out.println("\n===Arquivos de entrada com digests calculados===\n");
-		for (ArquivoComDigestCalculado arquivoComDigestCalculado : arquivosComDigestsCalculados) {
-			System.out.println(arquivoComDigestCalculado);
-			System.out.println("\n");
-		}
-
-		System.out.println("\n===Fim dos Arquivos de entrada com digests calculados===\n");
 	}
 
 	public void Verificar() {
@@ -82,8 +71,8 @@ public class Calculator {
 					linha = String.format("%s %s %s %s %s", item.getNomeArquivo(), item.getTipoDigest1(),
 							item.getDigest1(), item.getTipoDigest2(), item.getDigest2());
 					gravarArq.println(linha);
-				}else {
-					
+				} else {
+
 					// CompletaUmExistente
 					Boolean completou = false;
 					for (ArquivoComDigestCalculado notFound : notFounds) {
@@ -94,29 +83,31 @@ public class Calculator {
 							completou = true;
 						}
 					}
-					
-					if(!completou){
-						linha = String.format("%s %s %s", item.getNomeArquivo(), item.getTipoDigest1(), item.getDigest1());
-						gravarArq.println(linha);	
+
+					if (!completou) {
+						linha = String.format("%s %s %s", item.getNomeArquivo(), item.getTipoDigest1(),
+								item.getDigest1());
+						gravarArq.println(linha);
 					}
-				} 
+				}
 			}
-			
+
 			for (ArquivoComDigestCalculado notFound : notFounds) {
-				
+
 				Boolean contém = false;
-				
+
 				for (ListaDigestItem item : listaDigest.getItens()) {
-					if(item.getNomeArquivo().equals(notFound.getNomeArquivo()))
+					if (item.getNomeArquivo().equals(notFound.getNomeArquivo()))
 						contém = true;
 				}
-				
-				if(!contém){
-					String linha = String.format("%s %s %s", notFound.getNomeArquivo(), notFound.getTipoDigest(), notFound.getDigest());
+
+				if (!contém) {
+					String linha = String.format("%s %s %s", notFound.getNomeArquivo(), notFound.getTipoDigest(),
+							notFound.getDigest());
 					gravarArq.println(linha);
 				}
 			}
-			
+
 			gravarArq.close();
 			arq.close();
 		} catch (Exception e) {
